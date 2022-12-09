@@ -130,6 +130,8 @@ jobs:
       - name: Find application metadata
         id: metadata
         uses: equisoft-actions/application-metadata@v1
+        with:
+          hotfix-branch-prefix: release/
 
       - name: Compute variables
         id: variables
