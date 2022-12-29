@@ -150,8 +150,8 @@ jobs:
             DOCKER_CONTEXT="${{ inputs.working-directory }}"
           fi
 
-          echo "::set-output name=image-name::${IMAGE_NAME}"
-          echo "::set-output name=docker-context::${DOCKER_CONTEXT}"
+          echo "image-name=${IMAGE_NAME}" >> $GITHUB_OUTPUT
+          echo "docker-context=${DOCKER_CONTEXT}" >> $GITHUB_OUTPUT
 
       - name: Setup asdf-vm
         uses: equisoft-actions/with-asdf-vm@v1
@@ -350,7 +350,7 @@ jobs:
           else
             PLATFORMS=${{ inputs.platforms }}
           fi
-          echo "::set-output name=platforms::${PLATFORMS}"
+          echo "platforms=${PLATFORMS}" >> $GITHUB_OUTPUT
 
       - name: Build and push
         id: build-and-push
@@ -374,10 +374,24 @@ jobs:
 
       - name: Output pushed image tag
         id: output-pushed-image
-        if: inputs.publish-image == 'true'
+        if: inputs.publish-image
         shell: bash
         run: |
-          echo "::set-output name=image-tag::${{ needs.setup.outputs.image-name }}:${{ steps.build-and-push.outputs.image-version }}"
+          echo "image-tag=${{ needs.setup.outputs.image-name }}:${{ steps.build-and-push.outputs.image-version }}" >> $GITHUB_OUTPUT
+
+  docker-security:
+    uses: equisoft-actions/docker-workflows/.github/workflows/security.yml@v2
+    if: inputs.publish-image
+    needs:
+      - image
+    with:
+      image-tag: ${{ needs.image.outputs.image-tag }}
+      working-directory: ${{ inputs.working-directory }}
+    secrets:
+      REGISTRY: ${{ secrets.ECR_REGISTRY }}
+      ECR_AWS_ACCESS_KEY_ID: ${{ secrets.ECR_AWS_ACCESS_KEY_ID }}
+      ECR_AWS_SECRET_ACCESS_KEY: ${{ secrets.ECR_AWS_SECRET_ACCESS_KEY }}
+      ECR_AWS_REGION: ${{ secrets.ECR_AWS_REGION }}
 
   notify:
     name: Notify
