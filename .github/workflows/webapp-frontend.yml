@@ -381,7 +381,11 @@ jobs:
 
   docker-security:
     uses: equisoft-actions/docker-workflows/.github/workflows/security.yml@v2
-    if: needs.image.outputs.image-tag != ''
+    if: |
+      !failure() &&
+      !cancelled() &&
+      success('image') &&
+      inputs.publish-image
     needs:
       - image
     with:
