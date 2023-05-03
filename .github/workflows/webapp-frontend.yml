@@ -39,9 +39,9 @@ on:
       publish-image:
         description: |
           Set to `true` to enable Docker image publication. This will typically only be `false` until the ECR repository is created.
-          Defaults to false.
+          Defaults to true.
         required: false
-        default: false
+        default: true
         type: boolean
       workflow-path:
         description: Workflow file used for change detection.
