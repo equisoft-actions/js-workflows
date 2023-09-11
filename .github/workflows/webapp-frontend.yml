@@ -123,7 +123,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -191,7 +191,7 @@ jobs:
     if: contains(inputs.checks, 'eslint')
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Download SDK output
         uses: actions/download-artifact@v3
@@ -221,7 +221,7 @@ jobs:
     if: contains(inputs.checks, 'stylelint')
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Download SDK output
         uses: actions/download-artifact@v3
@@ -251,7 +251,7 @@ jobs:
     if: contains(inputs.checks, 'unit_tests')
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Download SDK output
         uses: actions/download-artifact@v3
@@ -281,7 +281,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Download SDK output
         uses: actions/download-artifact@v3
@@ -310,7 +310,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Validate Dockerfile
         uses: equisoft-actions/hadolint@v1
         with:
@@ -339,7 +339,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Determine platforms to build
         id: platforms
