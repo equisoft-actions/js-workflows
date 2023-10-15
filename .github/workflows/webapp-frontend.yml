@@ -154,7 +154,7 @@ jobs:
           echo "docker-context=${DOCKER_CONTEXT}" >> $GITHUB_OUTPUT
 
       - name: Setup asdf-vm
-        uses: equisoft-actions/with-asdf-vm@v1
+        uses: equisoft-actions/with-asdf-vm@v2
 
       - name: Install NPM dependencies
         uses: equisoft-actions/yarn-install@v1
@@ -201,7 +201,7 @@ jobs:
           path: backend/bff/sdk/
 
       - name: Setup asdf-vm
-        uses: equisoft-actions/with-asdf-vm@v1
+        uses: equisoft-actions/with-asdf-vm@v2
 
       - name: Install NPM dependencies
         uses: equisoft-actions/yarn-install@v1
@@ -231,7 +231,7 @@ jobs:
           path: backend/bff/sdk/
 
       - name: Setup asdf-vm
-        uses: equisoft-actions/with-asdf-vm@v1
+        uses: equisoft-actions/with-asdf-vm@v2
 
       - name: Install NPM dependencies
         uses: equisoft-actions/yarn-install@v1
@@ -261,7 +261,7 @@ jobs:
           path: backend/bff/sdk/
 
       - name: Setup asdf-vm
-        uses: equisoft-actions/with-asdf-vm@v1
+        uses: equisoft-actions/with-asdf-vm@v2
 
       - name: Install NPM dependencies
         uses: equisoft-actions/yarn-install@v1
@@ -291,7 +291,7 @@ jobs:
           path: backend/bff/sdk/
 
       - name: Setup asdf-vm
-        uses: equisoft-actions/with-asdf-vm@v1
+        uses: equisoft-actions/with-asdf-vm@v2
 
       - name: Install NPM dependencies
         uses: equisoft-actions/yarn-install@v1
