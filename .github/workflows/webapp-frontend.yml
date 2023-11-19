@@ -162,7 +162,7 @@ jobs:
           working-directory: ${{ inputs.working-directory }}
 
       - name: Generate SDK
-        uses: equisoft-actions/generate-openapi-sdk@v1
+        uses: equisoft-actions/generate-openapi-sdk@v2
         if: inputs.generate-sdk
         with:
           working-directory: backend
