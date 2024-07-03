@@ -43,6 +43,12 @@ on:
         required: false
         default: true
         type: boolean
+      slack-channel:
+        description: |
+          The Slack channel where the notification will be sent.
+          Defaults to $ {{ github.event.repository.custom_properties.ci_slack_channel }}.
+        required: false
+        type: string
       workflow-path:
         description: Workflow file used for change detection.
         default: .github/workflows/webapp-frontend.yml
@@ -72,8 +78,8 @@ on:
       ECR_AWS_REGION:
         description: AWS region for the registry.
         required: true
-      SLACK_NOTIFICATION_WEBHOOK_URL:
-        description: A Slack webhook where workflow failures will be published to.
+      SLACK_BOT_TOKEN:
+        description: The bot token used to authenticate with Slack.
         required: true
     outputs:
       image-tag:
@@ -401,17 +407,23 @@ jobs:
     name: Notify
     runs-on: ubuntu-latest
     needs:
+      - pre_checks
       - setup
       - eslint
       - stylelint
       - unit_tests
       - compile
+      - lint_dockerfiles
       - image
-    if: needs.setup.outputs.publishable == 'true'
+      - docker-security
+    if: always() && needs.setup.outputs.publishable == 'true'
 
     steps:
       - name: Post workflow status
-        uses: equisoft-actions/notify-workflow-status@v1
+        uses: equisoft-actions/notify-workflow-status@v2
         with:
           needs: ${{ toJSON(needs) }}
-          slack-webhook-url: ${{ secrets.SLACK_NOTIFICATION_WEBHOOK_URL }}
+          downgrade-to-warning: docker-security,generate_sdk
+          slack-bot-token: ${{ secrets.SLACK_BOT_TOKEN }}
+          slack-channel: ${{ inputs.slack-channel || github.event.repository.custom_properties.ci_slack_channel }}
+
