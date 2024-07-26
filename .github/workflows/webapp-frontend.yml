@@ -53,6 +53,11 @@ on:
         required: false
         default: true
         type: boolean
+      sdk-output-path:
+        description: Path where the generated SDK will be stored.
+        required: false
+        type: string
+        default: "backend/bff/sdk/"
       slack-channel:
         description: |
           The Slack channel where the notification will be sent.
@@ -135,7 +140,6 @@ jobs:
       image-name: ${{ steps.variables.outputs.image-name }}
       is-release: ${{ steps.metadata.outputs.is-release }}
       publishable: ${{ steps.metadata.outputs.publishable }}
-      sdk-output-path: ${{ steps.variables.outputs.sdk-output-path }}
       version: ${{ steps.metadata.outputs.version }}
 
     steps:
@@ -167,17 +171,11 @@ jobs:
             DOCKER_CONTEXT="${{ inputs.working-directory }}"
           fi
 
-          echo "sdk-output-path=${{ inputs.backend-working-directory }}/${{ inputs.backend-gradle-project-path }}/sdk" >> $GITHUB_OUTPUT
           echo "image-name=${IMAGE_NAME}" >> $GITHUB_OUTPUT
           echo "docker-context=${DOCKER_CONTEXT}" >> $GITHUB_OUTPUT
 
       - name: Setup asdf-vm
         uses: equisoft-actions/with-asdf-vm@v2
-
-      - name: Install NPM dependencies
-        uses: equisoft-actions/yarn-install@v1
-        with:
-          working-directory: ${{ inputs.working-directory }}
 
       - name: Generate SDK
         uses: equisoft-actions/generate-openapi-sdk@v2
@@ -192,12 +190,17 @@ jobs:
             gpr.user=${{ secrets.GPR_USER }}
             gpr.key=${{ secrets.GPR_KEY }}
 
+      - name: Install NPM dependencies
+        uses: equisoft-actions/yarn-install@v1
+        with:
+          working-directory: ${{ inputs.working-directory }}
+
       - name: Store SDK output
         uses: actions/upload-artifact@v4
         if: success() && inputs.generate-sdk
         with:
           name: sdk_output
-          path: ${{ steps.variables.outputs.sdk-output-path }}
+          path: ${{ inputs.sdk-output-path }}
           retention-days: 1
           if-no-files-found: error
 
@@ -216,7 +219,7 @@ jobs:
         if: inputs.generate-sdk
         with:
           name: sdk_output
-          path: ${{ needs.setup.outputs.sdk-output-path }}
+          path: ${{ inputs.sdk-output-path }}
 
       - name: Setup asdf-vm
         uses: equisoft-actions/with-asdf-vm@v2
@@ -246,7 +249,7 @@ jobs:
         if: inputs.generate-sdk
         with:
           name: sdk_output
-          path: ${{ needs.setup.outputs.sdk-output-path }}
+          path: ${{ inputs.sdk-output-path }}
 
       - name: Setup asdf-vm
         uses: equisoft-actions/with-asdf-vm@v2
@@ -276,7 +279,7 @@ jobs:
         if: inputs.generate-sdk
         with:
           name: sdk_output
-          path: ${{ needs.setup.outputs.sdk-output-path }}
+          path: ${{ inputs.sdk-output-path }}
 
       - name: Setup asdf-vm
         uses: equisoft-actions/with-asdf-vm@v2
@@ -306,7 +309,7 @@ jobs:
         if: inputs.generate-sdk
         with:
           name: sdk_output
-          path: ${{ needs.setup.outputs.sdk-output-path }}
+          path: ${{ inputs.sdk-output-path }}
 
       - name: Setup asdf-vm
         uses: equisoft-actions/with-asdf-vm@v2
