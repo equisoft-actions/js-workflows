@@ -15,6 +15,16 @@ on:
         required: false
         default: "eslint,stylelint,unit_tests,lint_dockerfiles"
         type: string
+      backend-working-directory:
+        description: Relative path under $GITHUB_WORKSPACE where the backend project is located.
+        required: false
+        type: string
+        default: "backend"
+      backend-gradle-project-path:
+        description: Gradle project path for the backend project.
+        required: false
+        type: string
+        default: "bff"
       docker-context:
         description: Relative path under $GITHUB_WORKSPACE for the Docker context.
         required: false
@@ -109,7 +119,7 @@ jobs:
               ".tool-versions",
               "${{ inputs.workflow-path }}",
               "${{ inputs.working-directory }}/**",
-              "backend/bff/src/main/**/interfaces/http/rest/**"
+              "${{ inputs.backend-working-directory }}/${{ inputs.backend-gradle-project-path }}/src/main/**/interfaces/http/rest/**"
             ]
           skip_after_successful_duplicate: true
 
@@ -125,6 +135,7 @@ jobs:
       image-name: ${{ steps.variables.outputs.image-name }}
       is-release: ${{ steps.metadata.outputs.is-release }}
       publishable: ${{ steps.metadata.outputs.publishable }}
+      sdk-output-path: ${{ steps.variables.outputs.sdk-output-path }}
       version: ${{ steps.metadata.outputs.version }}
 
     steps:
@@ -156,6 +167,7 @@ jobs:
             DOCKER_CONTEXT="${{ inputs.working-directory }}"
           fi
 
+          echo "sdk-output-path=${{ inputs.backend-working-directory }}/${{ inputs.backend-gradle-project-path }}/sdk" >> $GITHUB_OUTPUT
           echo "image-name=${IMAGE_NAME}" >> $GITHUB_OUTPUT
           echo "docker-context=${DOCKER_CONTEXT}" >> $GITHUB_OUTPUT
 
@@ -171,8 +183,8 @@ jobs:
         uses: equisoft-actions/generate-openapi-sdk@v2
         if: inputs.generate-sdk
         with:
-          working-directory: backend
-          gradle-project-path: bff
+          working-directory: ${{ inputs.backend-working-directory }}
+          gradle-project-path: ${{ inputs.backend-gradle-project-path }}
           generator-name: typescript
           publish: false
           gradle-properties: |
@@ -185,7 +197,7 @@ jobs:
         if: success() && inputs.generate-sdk
         with:
           name: sdk_output
-          path: backend/bff/sdk/
+          path: ${{ steps.variables.outputs.sdk-output-path }}
           retention-days: 1
           if-no-files-found: error
 
@@ -204,7 +216,7 @@ jobs:
         if: inputs.generate-sdk
         with:
           name: sdk_output
-          path: backend/bff/sdk/
+          path: ${{ needs.setup.outputs.sdk-output-path }}
 
       - name: Setup asdf-vm
         uses: equisoft-actions/with-asdf-vm@v2
@@ -234,7 +246,7 @@ jobs:
         if: inputs.generate-sdk
         with:
           name: sdk_output
-          path: backend/bff/sdk/
+          path: ${{ needs.setup.outputs.sdk-output-path }}
 
       - name: Setup asdf-vm
         uses: equisoft-actions/with-asdf-vm@v2
@@ -264,7 +276,7 @@ jobs:
         if: inputs.generate-sdk
         with:
           name: sdk_output
-          path: backend/bff/sdk/
+          path: ${{ needs.setup.outputs.sdk-output-path }}
 
       - name: Setup asdf-vm
         uses: equisoft-actions/with-asdf-vm@v2
@@ -294,7 +306,7 @@ jobs:
         if: inputs.generate-sdk
         with:
           name: sdk_output
-          path: backend/bff/sdk/
+          path: ${{ needs.setup.outputs.sdk-output-path }}
 
       - name: Setup asdf-vm
         uses: equisoft-actions/with-asdf-vm@v2
