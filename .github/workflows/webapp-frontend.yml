@@ -25,6 +25,11 @@ on:
         required: false
         type: string
         default: "bff"
+      build-path:
+        default: "dist/"
+        description: Path where the frontend artifacts are written
+        required: false
+        type: string
       docker-context:
         description: Relative path under $GITHUB_WORKSPACE for the Docker context.
         required: false
@@ -190,6 +195,12 @@ jobs:
             gpr.user=${{ secrets.GPR_USER }}
             gpr.key=${{ secrets.GPR_KEY }}
 
+      - name: NPM login to GitHub Packages
+        uses: equisoft-actions/yarn-npm-login@v1
+        with:
+          registry: npm.pkg.github.com
+          token: ${{ secrets.GPR_KEY }}
+
       - name: Install NPM dependencies
         uses: equisoft-actions/yarn-install@v1
         with:
@@ -224,6 +235,12 @@ jobs:
       - name: Setup asdf-vm
         uses: equisoft-actions/with-asdf-vm@v2
 
+      - name: NPM login to GitHub Packages
+        uses: equisoft-actions/yarn-npm-login@v1
+        with:
+          registry: npm.pkg.github.com
+          token: ${{ secrets.GPR_KEY }}
+
       - name: Install NPM dependencies
         uses: equisoft-actions/yarn-install@v1
         with:
@@ -253,6 +270,12 @@ jobs:
 
       - name: Setup asdf-vm
         uses: equisoft-actions/with-asdf-vm@v2
+
+      - name: NPM login to GitHub Packages
+        uses: equisoft-actions/yarn-npm-login@v1
+        with:
+          registry: npm.pkg.github.com
+          token: ${{ secrets.GPR_KEY }}
 
       - name: Install NPM dependencies
         uses: equisoft-actions/yarn-install@v1
@@ -284,6 +307,12 @@ jobs:
       - name: Setup asdf-vm
         uses: equisoft-actions/with-asdf-vm@v2
 
+      - name: NPM login to GitHub Packages
+        uses: equisoft-actions/yarn-npm-login@v1
+        with:
+          registry: npm.pkg.github.com
+          token: ${{ secrets.GPR_KEY }}
+
       - name: Install NPM dependencies
         uses: equisoft-actions/yarn-install@v1
         with:
@@ -314,6 +343,12 @@ jobs:
       - name: Setup asdf-vm
         uses: equisoft-actions/with-asdf-vm@v2
 
+      - name: NPM login to GitHub Packages
+        uses: equisoft-actions/yarn-npm-login@v1
+        with:
+          registry: npm.pkg.github.com
+          token: ${{ secrets.GPR_KEY }}
+
       - name: Install NPM dependencies
         uses: equisoft-actions/yarn-install@v1
         with:
@@ -321,7 +356,20 @@ jobs:
 
       - name: Compile
         working-directory: ${{ inputs.working-directory }}
-        run: yarn build:production
+        env:
+          APPLICATION_VERSION: ${{ needs.setup.outputs.version }}
+        run: |
+          jq '.version = "${{ needs.setup.outputs.version }}"' package.json > package.json$
+          mv package.json$ package.json
+          yarn build:production
+
+      - name: Store build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: webapp-dist
+          path: ${{ inputs.working-directory }}/${{ inputs.build-path }}
+          retention-days: 1
+          if-no-files-found: error
 
   lint_dockerfiles:
     name: Lint Dockerfiles
@@ -372,6 +420,12 @@ jobs:
             PLATFORMS=${{ inputs.platforms }}
           fi
           echo "platforms=${PLATFORMS}" >> $GITHUB_OUTPUT
+
+      - name: Download webapp build output
+        uses: actions/download-artifact@v4
+        with:
+          name: webapp-dist
+          path: ${{ inputs.working-directory }}/${{ inputs.build-path }}
 
       - name: Build and push
         id: build-and-push
