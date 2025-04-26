@@ -393,6 +393,7 @@ jobs:
       image-tag: ${{ steps.output-pushed-image.outputs.image-tag }}
     needs:
       - setup
+      - compile
       - eslint
       - stylelint
       - unit_tests
@@ -401,6 +402,7 @@ jobs:
       needs.setup.outputs.publishable == 'true' &&
       !failure() &&
       !cancelled() &&
+      (!contains(inputs.checks, 'compile') || success('compile')) &&
       (!contains(inputs.checks, 'eslint') || success('eslint')) &&
       (!contains(inputs.checks, 'stylelint') || success('stylelint')) &&
       (!contains(inputs.checks, 'unit_tests') || success('unit_tests')) &&
