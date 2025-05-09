@@ -402,11 +402,11 @@ jobs:
       needs.setup.outputs.publishable == 'true' &&
       !failure() &&
       !cancelled() &&
-      (!contains(inputs.checks, 'compile') || success('compile')) &&
-      (!contains(inputs.checks, 'eslint') || success('eslint')) &&
-      (!contains(inputs.checks, 'stylelint') || success('stylelint')) &&
-      (!contains(inputs.checks, 'unit_tests') || success('unit_tests')) &&
-      (!contains(inputs.checks, 'lint_dockerfiles') || success('lint_dockerfiles'))
+      (!contains(inputs.checks, 'compile') || needs.compile.result == 'success') &&
+      (!contains(inputs.checks, 'eslint') || needs.eslint.result == 'success') &&
+      (!contains(inputs.checks, 'stylelint') || needs.stylelint.result == 'success') &&
+      (!contains(inputs.checks, 'unit_tests') || needs.unit_tests.result == 'success') &&
+      (!contains(inputs.checks, 'lint_dockerfiles') || needs.lint_dockerfiles.result == 'success')
 
     steps:
       - name: Checkout
@@ -461,7 +461,7 @@ jobs:
     if: |
       !failure() &&
       !cancelled() &&
-      success('image') &&
+      needs.image.result == 'success' &&
       inputs.publish-image
     needs:
       - image
