@@ -374,6 +374,7 @@ jobs:
       - name: Determine node linker
         id: node-linker
         shell: bash
+        working-directory: ${{ inputs.working-directory }}
         run: |
           if [[ "${{ needs.setup.outputs.is-microfrontend }}" == "true" ]]; then
             LINKER="node-modules"
