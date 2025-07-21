@@ -592,7 +592,7 @@ jobs:
     if: always()
     steps:
       - name: Post workflow status
-        uses: equisoft-actions/notify-workflow-status@f3ec2ed3003fcb9e4f29ed715623dba9cf0b5706
+        uses: equisoft-actions/notify-workflow-status@v2
         with:
           needs: ${{ toJSON(needs) }}
           downgrade-to-warning: docker-security
