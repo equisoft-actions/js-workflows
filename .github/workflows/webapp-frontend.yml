@@ -546,12 +546,22 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Determine platforms to build
+        id: platforms
+        shell: bash
+        run: |
+          if [[ "${{ needs.setup.outputs.is-release }}" == "true" ]]; then
+            PLATFORMS="linux/amd64"
+          else
+            PLATFORMS=${{ inputs.platforms }}
+          fi
+          echo "platforms=${PLATFORMS}" >> $GITHUB_OUTPUT
       - name: Prepare github runners
         id: runners
         uses: equisoft-actions/docker-runners@v1
         with:
           instance-size: ${{ inputs.instance-size }}
-          platforms: ${{ inputs.platforms }}
+          platforms: ${{ steps.platforms.outputs.platforms }}
           use-self-hosted: ${{ inputs.use-self-hosted }}
 
       - name: Prepare image data
@@ -591,17 +601,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Determine platforms to build
-        id: platforms
-        shell: bash
-        run: |
-          if [[ "${{ needs.setup.outputs.is-release }}" == "true" ]]; then
-            PLATFORMS="linux/amd64"
-          else
-            PLATFORMS=${{ inputs.platforms }}
-          fi
-          echo "platforms=${PLATFORMS}" >> $GITHUB_OUTPUT
-
       - name: Download webapp build output
         uses: actions/download-artifact@v4
         with:
@@ -622,7 +621,7 @@ jobs:
             dockerfile: ${{ inputs.working-directory }}/Dockerfile
             labels: ${{ needs.prepare_docker_metadata.outputs.labels }}
             name: ${{ needs.setup.outputs.image-name }}
-            platforms: ${{ steps.platforms.outputs.platforms }}
+            platforms: ${{ matrix.platform }}
             pull: ${{ inputs.pull }}
             push: ${{ inputs.publish-image }}
             push-manifest: "false"
