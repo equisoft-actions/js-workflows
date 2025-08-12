@@ -618,7 +618,6 @@ jobs:
               GPR_USER=${{ secrets.GPR_USER }}
               GPR_KEY=${{ secrets.GPR_KEY }}
             context: ${{ needs.setup.outputs.docker-context }}
-            dockerfile: ${{ inputs.working-directory }}/Dockerfile
             labels: ${{ needs.prepare_docker_metadata.outputs.labels }}
             name: ${{ needs.setup.outputs.image-name }}
             platforms: ${{ matrix.platform }}
