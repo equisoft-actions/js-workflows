@@ -664,6 +664,7 @@ jobs:
       needs.create-manifest.result == 'success' &&
       inputs.publish-image
     needs:
+      - setup
       - docker-build-push
       - create-manifest
     with:
