@@ -657,7 +657,7 @@ jobs:
     if: |
       !failure() &&
       !cancelled() &&
-      needs.docker-build-push.result == 'success' &&
+      needs.create-manifest.result == 'success' &&
       inputs.publish-image
     needs:
       - docker-build-push
