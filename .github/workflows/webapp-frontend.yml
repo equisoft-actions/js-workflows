@@ -184,7 +184,8 @@ jobs:
       is-microfrontend: ${{ steps.variables.outputs.is-microfrontend }}
       is-release: ${{ steps.metadata.outputs.is-release }}
       microfrontend-types-path: ${{ inputs.working-directory }}/${{ inputs.microfrontend-types-path }}/${{ inputs.microfrontend-name }}/
-      publishable: ${{ steps.metadata.outputs.publishable }}
+      publishable: ${{ steps.variables.outputs.publishable }}
+
 
       version: ${{ steps.metadata.outputs.version }}
 
@@ -204,6 +205,9 @@ jobs:
         id: variables
         shell: bash
         run: |
+          # for testing only
+          echo "publishable=true" >> $GITHUB_OUTPUT
+
           BASE_NAME=${{ inputs.name }}
           FULL_NAME=${BASE_NAME}-frontend
 
