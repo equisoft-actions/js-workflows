@@ -143,6 +143,7 @@ permissions:
   contents: write
   id-token: write
   security-events: write
+  packages: write
 
 jobs:
   pre_checks:
