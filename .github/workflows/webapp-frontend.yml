@@ -190,7 +190,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
@@ -270,10 +270,10 @@ jobs:
     if: contains(inputs.checks, 'eslint')
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Download SDK output
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         if: inputs.generate-sdk
         with:
           name: sdk_output
@@ -306,10 +306,10 @@ jobs:
     if: contains(inputs.checks, 'stylelint')
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Download SDK output
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         if: inputs.generate-sdk
         with:
           name: sdk_output
@@ -342,10 +342,10 @@ jobs:
     if: contains(inputs.checks, 'unit_tests')
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Download SDK output
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         if: inputs.generate-sdk
         with:
           name: sdk_output
@@ -378,10 +378,10 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Download SDK output
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         if: inputs.generate-sdk
         with:
           name: sdk_output
@@ -452,7 +452,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Validate Dockerfile
         uses: equisoft-actions/hadolint@v1
         with:
@@ -481,7 +481,7 @@ jobs:
       (!contains(inputs.checks, 'lint_dockerfiles') || needs.lint_dockerfiles.result == 'success')
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
@@ -489,7 +489,7 @@ jobs:
         uses: equisoft-actions/with-asdf-vm@v2
 
       - name: Download microfrontend types
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: mf-types
           path: ${{ needs.setup.outputs.microfrontend-types-path }}
@@ -540,7 +540,7 @@ jobs:
       tags: ${{ steps.metadata.outputs.tags }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Determine platforms to build
         id: platforms
@@ -595,10 +595,10 @@ jobs:
         include: ${{ fromJson(needs.prepare_docker_metadata.outputs.matrix-include) }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Download webapp build output
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: webapp-dist
           path: ${{ inputs.working-directory }}/${{ inputs.build-path }}
