@@ -185,7 +185,7 @@ jobs:
       is-microfrontend: ${{ steps.variables.outputs.is-microfrontend }}
       is-release: ${{ steps.metadata.outputs.is-release }}
       microfrontend-types-path: ${{ inputs.working-directory }}/${{ inputs.microfrontend-types-path }}/${{ inputs.microfrontend-name }}/
-      publishable: ${{ steps.metadata.outputs.publishable }}
+      publishable: 'true'
       version: ${{ steps.metadata.outputs.version }}
 
     steps:
