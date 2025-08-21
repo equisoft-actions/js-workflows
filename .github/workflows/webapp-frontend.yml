@@ -685,6 +685,8 @@ jobs:
       - compile
       - lint_dockerfiles
       - publish_mf_types
+      - prepare_docker_metadata
+      - docker-build-push
       - create-manifest
       - docker-security
     if: always()
