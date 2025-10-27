@@ -254,7 +254,7 @@ jobs:
           working-directory: ${{ inputs.working-directory }}
 
       - name: Store SDK output
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         if: success() && inputs.generate-sdk
         with:
           name: sdk_output
@@ -273,7 +273,7 @@ jobs:
         uses: actions/checkout@v5
 
       - name: Download SDK output
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         if: inputs.generate-sdk
         with:
           name: sdk_output
@@ -309,7 +309,7 @@ jobs:
         uses: actions/checkout@v5
 
       - name: Download SDK output
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         if: inputs.generate-sdk
         with:
           name: sdk_output
@@ -345,7 +345,7 @@ jobs:
         uses: actions/checkout@v5
 
       - name: Download SDK output
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         if: inputs.generate-sdk
         with:
           name: sdk_output
@@ -381,7 +381,7 @@ jobs:
         uses: actions/checkout@v5
 
       - name: Download SDK output
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         if: inputs.generate-sdk
         with:
           name: sdk_output
@@ -429,7 +429,7 @@ jobs:
 
       - name: Store microfrontend types
         if: needs.setup.outputs.is-microfrontend == 'true'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: mf-types
           path: ${{ needs.setup.outputs.microfrontend-types-path }}
@@ -437,7 +437,7 @@ jobs:
           if-no-files-found: error
 
       - name: Store build artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: webapp-dist
           path: ${{ inputs.working-directory }}/${{ inputs.build-path }}
@@ -489,7 +489,7 @@ jobs:
         uses: equisoft-actions/with-asdf-vm@v2
 
       - name: Download microfrontend types
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: mf-types
           path: ${{ needs.setup.outputs.microfrontend-types-path }}
@@ -598,7 +598,7 @@ jobs:
         uses: actions/checkout@v5
 
       - name: Download webapp build output
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: webapp-dist
           path: ${{ inputs.working-directory }}/${{ inputs.build-path }}
