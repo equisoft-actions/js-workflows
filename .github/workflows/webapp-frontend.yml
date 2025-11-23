@@ -190,7 +190,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -270,7 +270,7 @@ jobs:
     if: contains(inputs.checks, 'eslint')
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Download SDK output
         uses: actions/download-artifact@v6
@@ -306,7 +306,7 @@ jobs:
     if: contains(inputs.checks, 'stylelint')
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Download SDK output
         uses: actions/download-artifact@v6
@@ -342,7 +342,7 @@ jobs:
     if: contains(inputs.checks, 'unit_tests')
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Download SDK output
         uses: actions/download-artifact@v6
@@ -378,7 +378,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Download SDK output
         uses: actions/download-artifact@v6
@@ -452,7 +452,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       - name: Validate Dockerfile
         uses: equisoft-actions/hadolint@v1
         with:
@@ -481,7 +481,7 @@ jobs:
       (!contains(inputs.checks, 'lint_dockerfiles') || needs.lint_dockerfiles.result == 'success')
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -540,7 +540,7 @@ jobs:
       tags: ${{ steps.metadata.outputs.tags }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Determine platforms to build
         id: platforms
@@ -595,7 +595,7 @@ jobs:
         include: ${{ fromJson(needs.prepare_docker_metadata.outputs.matrix-include) }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Download webapp build output
         uses: actions/download-artifact@v6
