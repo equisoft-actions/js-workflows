@@ -494,6 +494,9 @@ jobs:
           name: mf-types
           path: ${{ needs.setup.outputs.microfrontend-types-path }}
 
+      - name: Setup Yarn config
+        uses: equisoft-actions/yarn-config@v1
+
       - name: NPM login to GitHub Packages
         uses: equisoft-actions/yarn-npm-login@v1
         with:
