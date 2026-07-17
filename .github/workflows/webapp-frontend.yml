@@ -414,7 +414,9 @@ jobs:
       - name: Get Playwright version
         id: playwright
         working-directory: ${{ inputs.working-directory }}
-        run: echo "version=$(node -p "require('./package.json').devDependencies['@playwright/test']")" >> "$GITHUB_OUTPUT"
+        run: |
+          VERSION=$(node -p "require('./package.json').devDependencies['@playwright/test']")
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
 
       - name: Cache Playwright browsers
         uses: actions/cache@0c56e83b4704a7b7c67dc3460c3589e4a2b3e266 # v4
