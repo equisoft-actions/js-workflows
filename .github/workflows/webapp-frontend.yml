@@ -11,7 +11,7 @@ on:
         description: |
           List of enabled check separated by comma.
           default: eslint,stylelint,unit_tests,lint_dockerfiles
-          available checks: eslint,stylelint,unit_tests,lint_dockerfiles
+          available checks: eslint,stylelint,unit_tests,e2e_tests,lint_dockerfiles
         required: false
         default: "eslint,stylelint,unit_tests,lint_dockerfiles"
         type: string
@@ -114,6 +114,11 @@ on:
         default: false
       role-to-assume:
         description: AWS role to assume for ECR access.
+        required: false
+        type: string
+        default: ""
+      e2e-pre-command:
+        description: Optional shell command to run before Playwright tests (e.g. build dependent workspaces).
         required: false
         type: string
         default: ""
@@ -370,6 +375,73 @@ jobs:
         with:
           working-directory: ${{ inputs.working-directory }}
 
+  e2e_tests:
+    name: E2E tests
+    runs-on: ubuntu-latest
+    needs:
+      - setup
+    if: contains(inputs.checks, 'e2e_tests')
+    steps:
+      - name: Checkout
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+
+      - name: Download SDK output
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        if: inputs.generate-sdk
+        with:
+          name: sdk_output
+          path: ${{ inputs.sdk-output-path }}
+
+      - name: Setup asdf-vm
+        uses: equisoft-actions/with-asdf-vm@v2
+
+      - name: NPM login to GitHub Packages
+        uses: equisoft-actions/yarn-npm-login@v1
+        with:
+          registry: npm.pkg.github.com
+          token: ${{ secrets.GPR_KEY }}
+
+      - name: Install NPM dependencies
+        uses: equisoft-actions/yarn-install@v1
+        with:
+          working-directory: ${{ inputs.working-directory }}
+
+      - name: E2E pre-command
+        if: inputs.e2e-pre-command != ''
+        working-directory: ${{ inputs.working-directory }}
+        run: ${{ inputs.e2e-pre-command }}
+
+      - name: Get Playwright version
+        id: playwright
+        working-directory: ${{ inputs.working-directory }}
+        run: echo "version=$(node -p "require('./package.json').devDependencies['@playwright/test']")" >> "$GITHUB_OUTPUT"
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@0c56e83b4704a7b7c67dc3460c3589e4a2b3e266 # v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ steps.playwright.outputs.version }}
+
+      - name: Install Playwright browsers
+        working-directory: ${{ inputs.working-directory }}
+        run: yarn test:e2e:install
+
+      - name: Run Playwright e2e tests
+        working-directory: ${{ inputs.working-directory }}
+        run: yarn test:e2e
+
+      - name: Upload Playwright artifacts
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: playwright-${{ inputs.name }}
+          path: |
+            ${{ inputs.working-directory }}/build/playwright/report/
+            ${{ inputs.working-directory }}/build/playwright/junit.xml
+            ${{ inputs.working-directory }}/build/playwright/results/
+          retention-days: 7
+          if-no-files-found: ignore
+
   compile:
     name: Compile
     runs-on: ubuntu-latest
@@ -468,6 +540,7 @@ jobs:
       - eslint
       - stylelint
       - unit_tests
+      - e2e_tests
       - lint_dockerfiles
     if: |
       needs.setup.outputs.publishable == 'true' &&
@@ -478,6 +551,7 @@ jobs:
       (!contains(inputs.checks, 'eslint') || needs.eslint.result == 'success') &&
       (!contains(inputs.checks, 'stylelint') || needs.stylelint.result == 'success') &&
       (!contains(inputs.checks, 'unit_tests') || needs.unit_tests.result == 'success') &&
+      (!contains(inputs.checks, 'e2e_tests') || needs.e2e_tests.result == 'success') &&
       (!contains(inputs.checks, 'lint_dockerfiles') || needs.lint_dockerfiles.result == 'success')
     steps:
       - name: Checkout
@@ -526,6 +600,7 @@ jobs:
       - eslint
       - stylelint
       - unit_tests
+      - e2e_tests
       - lint_dockerfiles
     if: |
       !failure() &&
@@ -534,6 +609,7 @@ jobs:
       (!contains(inputs.checks, 'eslint') || needs.eslint.result == 'success') &&
       (!contains(inputs.checks, 'stylelint') || needs.stylelint.result == 'success') &&
       (!contains(inputs.checks, 'unit_tests') || needs.unit_tests.result == 'success') &&
+      (!contains(inputs.checks, 'e2e_tests') || needs.e2e_tests.result == 'success') &&
       (!contains(inputs.checks, 'lint_dockerfiles') || needs.lint_dockerfiles.result == 'success')
     outputs:
       annotations: ${{ steps.metadata.outputs.annotations }}
@@ -582,6 +658,7 @@ jobs:
       - eslint
       - stylelint
       - unit_tests
+      - e2e_tests
       - lint_dockerfiles
     if: |
       needs.setup.outputs.publishable == 'true' &&
@@ -591,6 +668,7 @@ jobs:
       (!contains(inputs.checks, 'eslint') || needs.eslint.result == 'success') &&
       (!contains(inputs.checks, 'stylelint') || needs.stylelint.result == 'success') &&
       (!contains(inputs.checks, 'unit_tests') || needs.unit_tests.result == 'success') &&
+      (!contains(inputs.checks, 'e2e_tests') || needs.e2e_tests.result == 'success') &&
       (!contains(inputs.checks, 'lint_dockerfiles') || needs.lint_dockerfiles.result == 'success')
     strategy:
       fail-fast: true
@@ -685,6 +763,7 @@ jobs:
       - eslint
       - stylelint
       - unit_tests
+      - e2e_tests
       - compile
       - lint_dockerfiles
       - publish_mf_types
