@@ -118,7 +118,7 @@ on:
         type: string
         default: ""
       e2e-pre-command:
-        description: Optional shell command to run before Playwright tests (e.g. build dependent workspaces).
+        description: Optional shell command to run before Playwright e2e tests (e.g. build dependent workspaces). Used only when e2e_tests is enabled.
         required: false
         type: string
         default: ""
@@ -406,43 +406,11 @@ jobs:
         with:
           working-directory: ${{ inputs.working-directory }}
 
-      - name: E2E pre-command
-        if: inputs.e2e-pre-command != ''
-        working-directory: ${{ inputs.working-directory }}
-        run: ${{ inputs.e2e-pre-command }}
-
-      - name: Get Playwright version
-        id: playwright
-        working-directory: ${{ inputs.working-directory }}
-        run: |
-          VERSION=$(node -p "require('./package.json').devDependencies['@playwright/test']")
-          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
-
-      - name: Cache Playwright browsers
-        uses: actions/cache@0c56e83b4704a7b7c67dc3460c3589e4a2b3e266 # v4
-        with:
-          path: ~/.cache/ms-playwright
-          key: playwright-${{ runner.os }}-${{ steps.playwright.outputs.version }}
-
-      - name: Install Playwright browsers
-        working-directory: ${{ inputs.working-directory }}
-        run: yarn test:e2e:install
-
       - name: Run Playwright e2e tests
-        working-directory: ${{ inputs.working-directory }}
-        run: yarn test:e2e
-
-      - name: Upload Playwright artifacts
-        if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: equisoft-actions/yarn-playwright@v1
         with:
-          name: playwright-${{ inputs.name }}
-          path: |
-            ${{ inputs.working-directory }}/build/playwright/report/
-            ${{ inputs.working-directory }}/build/playwright/junit.xml
-            ${{ inputs.working-directory }}/build/playwright/results/
-          retention-days: 7
-          if-no-files-found: ignore
+          working-directory: ${{ inputs.working-directory }}
+          pre-command: ${{ inputs.e2e-pre-command }}
 
   compile:
     name: Compile
