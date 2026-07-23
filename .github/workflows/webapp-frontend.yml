@@ -11,7 +11,7 @@ on:
         description: |
           List of enabled check separated by comma.
           default: eslint,stylelint,unit_tests,lint_dockerfiles
-          available checks: eslint,stylelint,unit_tests,lint_dockerfiles
+          available checks: eslint,stylelint,unit_tests,e2e_tests,lint_dockerfiles
         required: false
         default: "eslint,stylelint,unit_tests,lint_dockerfiles"
         type: string
@@ -114,6 +114,11 @@ on:
         default: false
       role-to-assume:
         description: AWS role to assume for ECR access.
+        required: false
+        type: string
+        default: ""
+      e2e-pre-command:
+        description: Optional shell command to run before Playwright e2e tests (e.g. build dependent workspaces). Used only when e2e_tests is enabled.
         required: false
         type: string
         default: ""
@@ -370,6 +375,43 @@ jobs:
         with:
           working-directory: ${{ inputs.working-directory }}
 
+  e2e_tests:
+    name: E2E tests
+    runs-on: ubuntu-latest
+    needs:
+      - setup
+    if: contains(inputs.checks, 'e2e_tests')
+    steps:
+      - name: Checkout
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+
+      - name: Download SDK output
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        if: inputs.generate-sdk
+        with:
+          name: sdk_output
+          path: ${{ inputs.sdk-output-path }}
+
+      - name: Setup asdf-vm
+        uses: equisoft-actions/with-asdf-vm@v2
+
+      - name: NPM login to GitHub Packages
+        uses: equisoft-actions/yarn-npm-login@v1
+        with:
+          registry: npm.pkg.github.com
+          token: ${{ secrets.GPR_KEY }}
+
+      - name: Install NPM dependencies
+        uses: equisoft-actions/yarn-install@v1
+        with:
+          working-directory: ${{ inputs.working-directory }}
+
+      - name: Run Playwright e2e tests
+        uses: equisoft-actions/yarn-playwright@v1
+        with:
+          working-directory: ${{ inputs.working-directory }}
+          pre-command: ${{ inputs.e2e-pre-command }}
+
   compile:
     name: Compile
     runs-on: ubuntu-latest
@@ -468,6 +510,7 @@ jobs:
       - eslint
       - stylelint
       - unit_tests
+      - e2e_tests
       - lint_dockerfiles
     if: |
       needs.setup.outputs.publishable == 'true' &&
@@ -478,6 +521,7 @@ jobs:
       (!contains(inputs.checks, 'eslint') || needs.eslint.result == 'success') &&
       (!contains(inputs.checks, 'stylelint') || needs.stylelint.result == 'success') &&
       (!contains(inputs.checks, 'unit_tests') || needs.unit_tests.result == 'success') &&
+      (!contains(inputs.checks, 'e2e_tests') || needs.e2e_tests.result == 'success') &&
       (!contains(inputs.checks, 'lint_dockerfiles') || needs.lint_dockerfiles.result == 'success')
     steps:
       - name: Checkout
@@ -526,6 +570,7 @@ jobs:
       - eslint
       - stylelint
       - unit_tests
+      - e2e_tests
       - lint_dockerfiles
     if: |
       !failure() &&
@@ -534,6 +579,7 @@ jobs:
       (!contains(inputs.checks, 'eslint') || needs.eslint.result == 'success') &&
       (!contains(inputs.checks, 'stylelint') || needs.stylelint.result == 'success') &&
       (!contains(inputs.checks, 'unit_tests') || needs.unit_tests.result == 'success') &&
+      (!contains(inputs.checks, 'e2e_tests') || needs.e2e_tests.result == 'success') &&
       (!contains(inputs.checks, 'lint_dockerfiles') || needs.lint_dockerfiles.result == 'success')
     outputs:
       annotations: ${{ steps.metadata.outputs.annotations }}
@@ -582,6 +628,7 @@ jobs:
       - eslint
       - stylelint
       - unit_tests
+      - e2e_tests
       - lint_dockerfiles
     if: |
       needs.setup.outputs.publishable == 'true' &&
@@ -591,6 +638,7 @@ jobs:
       (!contains(inputs.checks, 'eslint') || needs.eslint.result == 'success') &&
       (!contains(inputs.checks, 'stylelint') || needs.stylelint.result == 'success') &&
       (!contains(inputs.checks, 'unit_tests') || needs.unit_tests.result == 'success') &&
+      (!contains(inputs.checks, 'e2e_tests') || needs.e2e_tests.result == 'success') &&
       (!contains(inputs.checks, 'lint_dockerfiles') || needs.lint_dockerfiles.result == 'success')
     strategy:
       fail-fast: true
@@ -685,6 +733,7 @@ jobs:
       - eslint
       - stylelint
       - unit_tests
+      - e2e_tests
       - compile
       - lint_dockerfiles
       - publish_mf_types
